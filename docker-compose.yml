@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: consent-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: consent_db
+      MYSQL_USER: consent_user
+      MYSQL_PASSWORD: consent_pass
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/schema:/docker-entrypoint-initdb.d:ro
+
+  backend:
+    build: ./backend
+    container_name: consent-backend
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/consent_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 0000
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: consent-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  db_data:
