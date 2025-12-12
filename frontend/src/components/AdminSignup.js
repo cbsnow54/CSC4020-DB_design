@@ -40,8 +40,7 @@ const AdminSignup = () => {
     if (!formData.id) return alert('관리자 ID를 입력해주세요.');
     try {
       const response = await checkAdminId(formData.id);
-      const isDuplicated = response.data;
-      if (isDuplicated) {
+      if (response.data) {
         alert('이미 사용 중인 ID입니다.');
         setIsIdAvailable(false);
       } else {
@@ -63,8 +62,8 @@ const AdminSignup = () => {
 
     try {
       await signupAdmin(payload);
-      alert('관리자 가입 성공!');
-      window.location.href = '/admin/login'; 
+      alert('관리자 가입 성공! 로그인 화면으로 이동합니다.');
+      window.location.href = '/auth/admin'; 
     } catch (error) {
       const rawMsg = error.response?.data || error.message;
       alert('가입 실패:\n' + getUserFriendlyErrorMessage(String(rawMsg)));
@@ -106,7 +105,7 @@ const AdminSignup = () => {
           <input type="password" name="password" placeholder="비밀번호 입력" onChange={handleChange} className="border p-2 w-full rounded" required />
           <p className="text-xs text-gray-500 mt-1">* 8자 이상, 소문자/숫자/특수문자 각각 1개 이상 필수</p>
         </div>
-        <button type="submit" className={`p-2 rounded mt-2 text-white font-bold ${isIdAvailable === true ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-400 cursor-not-allowed'}`} disabled={isIdAvailable !== true}>가입하기</button>
+        <button type="submit" className="p-2 rounded mt-2 text-white font-bold bg-purple-600 hover:bg-purple-700">가입하기</button>
       </form>
     </div>
   );

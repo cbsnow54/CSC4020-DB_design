@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { sendVerificationCode, signupUser } from '../api/userAuth';
+
 const UserSignup = () => {
   const [formData, setFormData] = useState({
     phoneNumber: '',
@@ -12,12 +13,8 @@ const UserSignup = () => {
   const [isVerified, setIsVerified] = useState(false);
 
   const getUserFriendlyErrorMessage = (errorMsg) => {
-    if (errorMsg.includes('chk_user_pw')) {
-      return '비밀번호 형식이 올바르지 않습니다.\n- 8자 이상\n- 영문 소문자, 숫자, 특수문자 각각 최소 1개 이상 포함해야 합니다.';
-    }
-    if (errorMsg.includes('chk_user_phone')) {
-      return '전화번호는 숫자만 입력해야 합니다.';
-    }
+    if (errorMsg.includes('chk_user_pw')) return '비밀번호 형식이 올바르지 않습니다.\n- 8자 이상\n- 영문 소문자, 숫자, 특수문자 각각 최소 1개 이상 포함해야 합니다.';
+    if (errorMsg.includes('chk_user_phone')) return '전화번호는 숫자만 입력해야 합니다.';
     return errorMsg;
   };
 
@@ -26,17 +23,14 @@ const UserSignup = () => {
   };
 
   const handleSendCode = async () => {
-    if (!formData.phoneNumber) {
-      alert('전화번호를 입력해주세요.');
-      return;
-    }
+    if (!formData.phoneNumber) return alert('전화번호를 입력해주세요.');
     try {
       await sendVerificationCode(formData.phoneNumber);
       setIsCodeSent(true);
       setIsVerified(false);
-      alert('인증번호가 발송되었습니다. (아무 숫자 6자리를 입력하세요)');
+      alert('인증번호가 발송되었습니다.');
     } catch (error) {
-      alert('발송 실패: 서버가 켜져있는지 확인해주세요.');
+      alert('발송 실패: 서버 상태를 확인해주세요.');
     }
   };
 
@@ -53,14 +47,14 @@ const UserSignup = () => {
     e.preventDefault();
     
     if (!isVerified) {
-      alert('전화번호 인증을 먼저 완료해주세요.');
+      alert('전화번호 인증을 먼저 완료해주세요 (인증번호 입력 후 [확인] 버튼 클릭).');
       return;
     }
 
     try {
       await signupUser(formData);
-      alert('회원가입 성공!');
-      window.location.href = '/user/login';
+      alert('회원가입 성공! 로그인 화면으로 이동합니다.');
+      window.location.href = '/auth/user';
     } catch (error) {
       const rawMsg = error.response?.data || error.message;
       alert('가입 실패:\n' + getUserFriendlyErrorMessage(String(rawMsg)));
@@ -100,7 +94,7 @@ const UserSignup = () => {
           <input type="password" name="password" placeholder="비밀번호 입력" onChange={handleChange} className="border p-2 w-full rounded" required />
           <p className="text-xs text-gray-500 mt-1">* 8자 이상, 소문자/숫자/특수문자 각각 1개 이상 필수</p>
         </div>
-        <button type="submit" className={`p-2 rounded mt-2 text-white font-bold ${isVerified ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`} disabled={isVerified}>
+        <button type="submit" className="p-2 rounded mt-2 text-white font-bold bg-blue-600 hover:bg-blue-700">
           가입하기
         </button>
       </form>
